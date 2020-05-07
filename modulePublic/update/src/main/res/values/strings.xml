@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">UpdateApk</string>
+    <string name="accessibility_description">自动更新本APP</string>
+    <string name="str_app_updating">系统升级中，请稍候。。。</string>
+    <string name="str_app_update_name">下载更新</string>
+    <string name="str_update_success">升级成功！</string>
+    <string name="str_use_accessibility_install">使用辅助安装！</string>
+</resources>

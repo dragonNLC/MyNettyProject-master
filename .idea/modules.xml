@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/FrameworkProject-master.iml" filepath="$PROJECT_DIR$/FrameworkProject-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MyNettyProject-master.iml" filepath="$PROJECT_DIR$/MyNettyProject-master.iml" group="MyNettyProject-master" />
+      <module fileurl="file://$PROJECT_DIR$/app/MyNettyProject-master-app.iml" filepath="$PROJECT_DIR$/app/MyNettyProject-master-app.iml" group="MyNettyProject-master/app" />
+      <module fileurl="file://$PROJECT_DIR$/moduleCore/MyNettyProject-master-moduleCore.iml" filepath="$PROJECT_DIR$/moduleCore/MyNettyProject-master-moduleCore.iml" group="MyNettyProject-master/moduleCore" />
+      <module fileurl="file://$PROJECT_DIR$/modulePublic/MyNettyProject-master-modulePublic.iml" filepath="$PROJECT_DIR$/modulePublic/MyNettyProject-master-modulePublic.iml" group="MyNettyProject-master/modulePublic" />
+      <module fileurl="file://$PROJECT_DIR$/moduleSystem/MyNettyProject-master-moduleSystem.iml" filepath="$PROJECT_DIR$/moduleSystem/MyNettyProject-master-moduleSystem.iml" group="MyNettyProject-master/moduleSystem" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/moduleSystem/base/base.iml" filepath="$PROJECT_DIR$/moduleSystem/base/base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/modulePublic/common/common.iml" filepath="$PROJECT_DIR$/modulePublic/common/common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/moduleCore/moduleCore.iml" filepath="$PROJECT_DIR$/moduleCore/moduleCore.iml" />
+      <module fileurl="file://$PROJECT_DIR$/modulePublic/modulePublic.iml" filepath="$PROJECT_DIR$/modulePublic/modulePublic.iml" />
+      <module fileurl="file://$PROJECT_DIR$/modulePublic/common/modulePublic-common.iml" filepath="$PROJECT_DIR$/modulePublic/common/modulePublic-common.iml" group="MyNettyProject-master/modulePublic/common" />
+      <module fileurl="file://$PROJECT_DIR$/modulePublic/update/modulePublic-update.iml" filepath="$PROJECT_DIR$/modulePublic/update/modulePublic-update.iml" />
+      <module fileurl="file://$PROJECT_DIR$/moduleSystem/moduleSystem.iml" filepath="$PROJECT_DIR$/moduleSystem/moduleSystem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/moduleSystem/base/moduleSystem-base.iml" filepath="$PROJECT_DIR$/moduleSystem/base/moduleSystem-base.iml" group="MyNettyProject-master/moduleSystem/base" />
+      <module fileurl="file://$PROJECT_DIR$/moduleSystem/tools/moduleSystem-tools.iml" filepath="$PROJECT_DIR$/moduleSystem/tools/moduleSystem-tools.iml" group="MyNettyProject-master/moduleSystem/tools" />
+      <module fileurl="file://$PROJECT_DIR$/moduleSystem/tools/tools.iml" filepath="$PROJECT_DIR$/moduleSystem/tools/tools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/modulePublic/update/update.iml" filepath="$PROJECT_DIR$/modulePublic/update/update.iml" group="MyNettyProject-master/modulePublic/update" />
+    </modules>
+  </component>
+</project>

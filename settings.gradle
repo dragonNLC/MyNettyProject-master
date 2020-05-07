@@ -1,0 +1,1 @@
+include ':app', ':modulePublic:update', ':modulePublic:common', ':moduleSystem:tools', ':moduleSystem:base', ":moduleCore"

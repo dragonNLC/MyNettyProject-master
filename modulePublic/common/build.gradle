@@ -1,0 +1,41 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        versionCode rootProject.ext.android.versionCode
+        versionName rootProject.ext.android.versionName
+        testInstrumentationRunner rootProject.ext.android.testInstrumentationRunner
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    api fileTree(dir: 'libs', include: ['*.jar'])
+
+    api rootProject.ext.dependencies.eventbus
+    api rootProject.ext.dependencies.glide
+    annotationProcessor rootProject.ext.dependencies.glideAnnotationProcessor
+
+    api rootProject.ext.dependencies.retrofit2
+    api rootProject.ext.dependencies.retrofit2Json
+    api rootProject.ext.dependencies.retrofit2Rxjava
+    api rootProject.ext.dependencies.rxjava
+    api rootProject.ext.dependencies.rxAndroid
+    api rootProject.ext.dependencies.myUtils
+    api rootProject.ext.dependencies.loadingView
+    api rootProject.ext.dependencies.rcvAdapter
+
+    api project(':moduleSystem:base')
+    api project(':moduleSystem:tools')
+}

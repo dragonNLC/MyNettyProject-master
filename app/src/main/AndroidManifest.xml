@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.aptdev.framework">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:name=".MainApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_logo"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/NoTitleFullScreenTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+
+        <activity android:name="com.aptdev.framework.ui.activity.main.LauncherActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="com.aptdev.framework.ui.activity.main.MainActivity" />
+
+        <activity android:name="com.aptdev.framework.ui.activity.main.StartUpActivity" />
+
+        <receiver android:name="com.aptdev.common.receiver.PhoneStateReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.aptdev.framework.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_file_path" />
+        </provider>
+
+        <service android:name=".service.UpgradeServer" />
+
+        <service
+            android:name="update.lb.cn.updateapk.asbserver.AutoReplyService"
+            android:enabled="true"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/auto_install_accessibility" />
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+        </service>
+
+        <receiver android:name="update.lb.cn.updateapk.receiver.DownloadApkReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="update.lb.cn.updateapk.receiver.InstallAPKReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

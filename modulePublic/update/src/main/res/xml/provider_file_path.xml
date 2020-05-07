@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--表示Context.getFilesDir()目录或者其子目录-->
+    <!--示例:/data/data/package-name/files/test_pro_file_path-->
+    <files-path
+        name="pro_file"
+        path="test_pro_file_path"/>
+
+    <!--表示Context.getCacheDir()目录或其子目录-->
+    <!--示例:/data/data/package-name/cache/test_cache_path-->
+    <cache-path
+        name="cache_path"
+        path="test_cache_path"/>
+
+    <!--表示Context.getExternalCacheDir()目录或者其他子目录-->
+    <!--示例:/storage/emulated/0/Android/data/data/package-name/cache/test_external_cache_path-->
+    <external-cache-path
+        name="external_cache_path"
+        path="test_external_cache_path"/>
+
+    <!--表示Environment.getExternalStorageDirectory()目录或者其子目录-->
+    <!--示例:/storage/emulated/0/test_external_path-->
+    <external-path
+        name="external_path"
+        path="test_external_path"/>
+
+    <!--表示Environment.getExternalStorageDirectory()目录或者其子目录-->
+    <!--示例:/storage/emulated/0/Download-->
+    <external-path
+        name="download_path"
+        path="Download"/>
+
+    <!--表示Context.getExternalFilesDir(null)或者其它子目录-->
+    <!--示例:/storage/emulated/0/Android/data/data/package-name/file/test_external_files_path-->
+    <external-files-path
+        name="external-files-path"
+        path="test_external_files_path"/>
+
+</paths>
