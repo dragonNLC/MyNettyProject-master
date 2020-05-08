@@ -1,5 +1,7 @@
 package com.aptdev.framework;
 
+import com.aptdev.framework.client.ClientHelper;
+import com.aptdev.framework.test.eos.MyCipherUtil;
 import com.dragondevl.clog.CLog;
 
 import org.junit.Test;
@@ -74,6 +76,17 @@ public class ExampleUnitTest {
                 }
             }
         });*/
+    }
+
+    @Test
+    public void testNioClient() throws InterruptedException {
+        new ClientHelper().run(6601);
+    }
+
+    @Test
+    public void printKey() {
+        /*String key = MyCipherUtil.encryptData("aptdev", );
+        System.out.println(key);*/
     }
 
 }

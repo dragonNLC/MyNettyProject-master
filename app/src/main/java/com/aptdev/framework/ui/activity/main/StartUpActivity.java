@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.aptdev.framework.R;
 import com.aptdev.common.contracts.presenter.base.BasePresenter;
 import com.aptdev.common.ui.activity.base.BaseActivity;
+import com.aptdev.framework.test.TestActivity;
 import com.dragondevl.clog.CLog;
 import com.tbruyelle.rxpermissions.Permission;
 import com.tbruyelle.rxpermissions.RxPermissions;
@@ -93,7 +94,7 @@ public class StartUpActivity extends BaseActivity {
             @Override
             public void run() {
                 if (isFinishing()) return;
-                startActivity(MainActivity.class);
+                startActivity(TestActivity.class);
                 finish();
             }
         });

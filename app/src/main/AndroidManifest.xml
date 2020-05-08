@@ -30,6 +30,12 @@
         <activity android:name="com.aptdev.framework.ui.activity.main.MainActivity" />
 
         <activity android:name="com.aptdev.framework.ui.activity.main.StartUpActivity" />
+        <activity android:name=".ui.activity.main.ChooseModelActivity" />
+        <activity android:name=".ui.activity.main.ServerModelActivity" />
+        <activity android:name=".ui.activity.main.ClientModelActivity" />
+        <activity android:name=".test.niotest.NioTestServerActivity" />
+        <activity android:name=".test.TestActivity" />
+        <activity android:name=".test.niotest.NioTestClientActivity" />
 
         <receiver android:name="com.aptdev.common.receiver.PhoneStateReceiver">
             <intent-filter>
@@ -63,6 +69,9 @@
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
         </service>
+        <service android:name=".service.ServiceStationServer" />
+        <service android:name=".test.nioserver.WorkStationServer" />
+        <service android:name=".test.nioserver.SingleClientServer" />
 
         <receiver android:name="update.lb.cn.updateapk.receiver.DownloadApkReceiver">
             <intent-filter>
