@@ -104,7 +104,6 @@ public class NioTestServerActivity extends BaseNetActivity implements ServerCall
     @Override
     protected void onStop() {
         super.onStop();
-        CLog.e("onStop");
         if (mBinging) {
             mBinging = false;
             unbindService(mServerConnection);

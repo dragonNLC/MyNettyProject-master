@@ -16,11 +16,16 @@ import com.aptdev.common.utils.TimeUtils;
 import com.aptdev.common.utils.ToastUtils;
 import com.aptdev.framework.R;
 import com.aptdev.framework.test.bean.LiveMessage;
+import com.aptdev.framework.test.bean.SocketControlBean;
+import com.aptdev.framework.test.constants.ServerConstant;
+import com.aptdev.framework.test.eos.CommunicationPermissionUtil;
 import com.aptdev.framework.test.eos.MyCipherUtil;
 import com.aptdev.framework.test.nioserver.SingleClientServer;
+import com.aptdev.framework.test.utils.GSonUtils;
 import com.dragondevl.clog.CLog;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.socket.SocketChannel;
 
 /**
  * @ClassName TestActivity
@@ -32,8 +37,8 @@ import io.netty.buffer.ByteBuf;
  */
 public class NioTestClientActivity extends BaseNetActivity implements SingleClientServer.ClientStatusListener {
 
-    private Button btnStartRequest;
-    private Button btnStartConsume;
+    private Button btnSendHeartbeat;
+    private Button btnRequestConsume;
     private LinearLayout linearTopConnectLayout;
     private RecyclerView rcvConnectList;
     private RecyclerView rcvContentList;
@@ -79,8 +84,8 @@ public class NioTestClientActivity extends BaseNetActivity implements SingleClie
     @Override
     protected void initView() {
         btnAuth = findViewById(R.id.btn_auth);
-        btnStartRequest = findViewById(R.id.btn_start_request);
-        btnStartConsume = findViewById(R.id.btn_start_consume);
+        btnSendHeartbeat = findViewById(R.id.btn_send_heartbeat);
+        btnRequestConsume = findViewById(R.id.btn_request_consume);
         linearTopConnectLayout = findViewById(R.id.linear_top_connect_layout);
         rcvConnectList = findViewById(R.id.rcv_connect_list);
         rcvContentList = findViewById(R.id.rcv_content_list);
@@ -89,8 +94,8 @@ public class NioTestClientActivity extends BaseNetActivity implements SingleClie
 
 
         btnAuth.setOnClickListener(this);
-        btnStartRequest.setOnClickListener(this);
-        btnStartConsume.setOnClickListener(this);
+        btnSendHeartbeat.setOnClickListener(this);
+        btnRequestConsume.setOnClickListener(this);
         btnReconnect.setOnClickListener(this);
         btnStopConnect.setOnClickListener(this);
     }
@@ -122,28 +127,31 @@ public class NioTestClientActivity extends BaseNetActivity implements SingleClie
 
     @Override
     protected void viewClick(View view) {
-        if (view == btnStartRequest) {
+        if (view == btnAuth) {
+            if (myBinder != null) {
+                String content = MyCipherUtil.encryptData(CommunicationPermissionUtil.SECRET_KEY, MyCipherUtil.DATA_KEY);
+                myBinder.sendData(new LiveMessage(LiveMessage.TYPE_MESSAGE, content.getBytes().length, content));
+            }
+        } else if (view == btnSendHeartbeat) {
             if (myBinder == null) {
                 ToastUtils.longToastShort(this, "等待连接本地服务中，请稍候。。。");
                 return;
             }
             myBinder.sendData(new LiveMessage(LiveMessage.TYPE_HEART));
-        } else if (view == btnStartConsume) {
+        } else if (view == btnRequestConsume) {
             if (myBinder == null) {
                 ToastUtils.longToastShort(this, "等待连接本地服务中，请稍候。。。");
                 return;
             }
-            String content = "当前时间：" + System.currentTimeMillis();
+            SocketControlBean scb = new SocketControlBean();
+            scb.setDtype(ServerConstant.SEND_CODE_1);
+            scb.setSerialNumber(System.currentTimeMillis());
+            String content = GSonUtils.getInstance().toJson(scb);
             myBinder.sendData(new LiveMessage(LiveMessage.TYPE_MESSAGE, content.getBytes().length, content));
         } else if (view == btnReconnect) {
             btnReconnect.setVisibility(View.GONE);
             if (myBinder != null) {
                 myBinder.startConnect();
-            }
-        } else if (view == btnAuth) {
-            if (myBinder != null) {
-                String content = MyCipherUtil.encryptData("aptdev", MyCipherUtil.DATA_KEY);
-                myBinder.sendData(new LiveMessage(LiveMessage.TYPE_MESSAGE, content.getBytes().length, content));
             }
         } else if (view == btnStopConnect) {
             if (myBinder != null) {
@@ -153,10 +161,12 @@ public class NioTestClientActivity extends BaseNetActivity implements SingleClie
     }
 
     @Override
-    public void connect() {
-        btnStartRequest.setEnabled(true);
-        btnStartConsume.setEnabled(true);
+    public void connect(SocketChannel socketChannel) {
+        btnReconnect.setVisibility(View.GONE);
+        btnSendHeartbeat.setEnabled(true);
+        btnRequestConsume.setEnabled(true);
         btnAuth.setEnabled(true);
+        btnStopConnect.setEnabled(true);
         showToast("连接成功！", false);
     }
 
@@ -168,9 +178,10 @@ public class NioTestClientActivity extends BaseNetActivity implements SingleClie
 
     @Override
     public void disconnect() {
-        btnStartRequest.setEnabled(false);
-        btnStartConsume.setEnabled(false);
+        btnSendHeartbeat.setEnabled(false);
+        btnRequestConsume.setEnabled(false);
         btnAuth.setEnabled(false);
+        btnStopConnect.setEnabled(false);
         btnReconnect.setVisibility(View.VISIBLE);
         showToast("连接被关闭！", false);
     }

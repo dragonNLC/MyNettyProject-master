@@ -19,7 +19,9 @@
         android:theme="@style/NoTitleFullScreenTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name="com.aptdev.framework.ui.activity.main.LauncherActivity">
+        <activity
+            android:name="com.aptdev.framework.ui.activity.main.LauncherActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,14 +29,18 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.aptdev.framework.ui.activity.main.MainActivity" />
+        <activity
+            android:name="com.aptdev.framework.ui.activity.main.MainActivity"/>
 
-        <activity android:name="com.aptdev.framework.ui.activity.main.StartUpActivity" />
+        <activity
+            android:name="com.aptdev.framework.ui.activity.main.StartUpActivity"
+            android:launchMode="singleTask" />
         <activity android:name=".ui.activity.main.ChooseModelActivity" />
         <activity android:name=".ui.activity.main.ServerModelActivity" />
         <activity android:name=".ui.activity.main.ClientModelActivity" />
         <activity android:name=".test.niotest.NioTestServerActivity" />
-        <activity android:name=".test.TestActivity" />
+        <activity android:name=".test.TestActivity"
+            android:launchMode="singleTask"  />
         <activity android:name=".test.niotest.NioTestClientActivity" />
 
         <receiver android:name="com.aptdev.common.receiver.PhoneStateReceiver">

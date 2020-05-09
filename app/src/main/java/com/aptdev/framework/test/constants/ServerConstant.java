@@ -13,9 +13,9 @@ public class ServerConstant {
     public static final int SERVER_PORT = 6601;
     public static final String NATIVE_SERVER_ADDRESS = "127.0.0.1";
 
-    public static final int HEART_PACK = 0x01;//心跳包
-    public static final int SEND_CODE_2 = 0x02;//请求当前核销数据，所有人的
-    public static final int SEND_CODE_3 = 0x03;//发送当前人员的核销数据到本地服务器
+    public static final int SEND_CODE_1 = 0x01;//请求当前核销数据，所有人的
+    public static final int SEND_CODE_2 = 0x02;//发送当前人员的核销数据到本地服务器
+    public static final int SEND_CODE_3 = 0x03;//
 
     public static final int REV_CODE_0 = 0x0;//保留
     public static final int REV_CODE_1 = 0x01;//保留

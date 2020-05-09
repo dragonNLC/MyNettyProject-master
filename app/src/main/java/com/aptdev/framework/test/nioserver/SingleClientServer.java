@@ -11,9 +11,14 @@ import android.support.annotation.Nullable;
 
 import com.aptdev.framework.test.bean.LiveMessage;
 import com.aptdev.framework.test.eos.MyCipherUtil;
+import com.aptdev.framework.test.nioclientthread.ClientDecoder;
+import com.aptdev.framework.test.nioclientthread.ClientHandler;
+import com.aptdev.framework.test.nioclientthread.ConnectionWatchdog;
+import com.aptdev.framework.test.nioclientthread.ConnectorIdleStateTrigger;
 import com.dragondevl.clog.CLog;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -21,13 +26,16 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.CharsetUtil;
+import io.netty.util.HashedWheelTimer;
 
 /**
  * @ClassName ClientServer
@@ -43,8 +51,10 @@ public class SingleClientServer extends Service {
 
     private NioEventLoopGroup workGroup;
     private Bootstrap bootstrap;
-
     private Channel socketChannel;
+
+    private ConnectorIdleStateTrigger idleStateTrigger = new ConnectorIdleStateTrigger();
+    private HashedWheelTimer timer = new HashedWheelTimer();
 
     private ClientStatusListener clientStatusListener;
 
@@ -71,59 +81,76 @@ public class SingleClientServer extends Service {
     void startConnect() {
         if (workGroup == null) {
             workGroup = new NioEventLoopGroup();
-
             bootstrap = new Bootstrap();
+            String ip = "192.168.11.50";
+            int port = 6601;
+
+            final ConnectionWatchdog watchdog = new ConnectionWatchdog(bootstrap, timer, port, ip, true, new ClientStatusListener() {
+                @Override
+                public void connect(final SocketChannel socketChannel) {
+                    SingleClientServer.this.socketChannel = socketChannel;
+                    mUIHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (clientStatusListener != null) {
+                                clientStatusListener.connect(socketChannel);
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void connectFail(final String errorInfo) {
+                    SingleClientServer.this.socketChannel = null;
+                            mUIHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (clientStatusListener != null) {
+                                clientStatusListener.connectFail(errorInfo);
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void disconnect() {
+                    SingleClientServer.this.socketChannel = null;
+                    mUIHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (clientStatusListener != null) {
+                                clientStatusListener.disconnect();
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onWriteContent(String content) {
+
+                }
+
+                @Override
+                public void onReadContent(String content) {
+                    CLog.e("数据读取成功：" + content);
+                }
+            }) {
+                @Override
+                public ChannelHandler[] handlers() {
+                    return new ChannelHandler[]{
+                            this,
+                            new IdleStateHandler(0, 4, 0, TimeUnit.SECONDS),
+                            idleStateTrigger, new ClientDecoder(), new ClientHandler()};
+                }
+            };
             bootstrap.group(workGroup)
                     .channel(NioSocketChannel.class)
                     .remoteAddress(new InetSocketAddress("192.168.11.50", 6601))
                     .handler(new ChannelInitializer<SocketChannel>() {
+
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new SimpleChannelInboundHandler<ByteBuf>() {
-
-                                @Override
-                                public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-                                    socketChannel = ctx.channel();
-                                    //可以在这里保存channel
-                                    /*String content = MyCipherUtil.encryptData("aptdevc", MyCipherUtil.DATA_KEY);
-                                    ByteBuf byteBuf = Unpooled.buffer();
-                                    byteBuf.writeByte(LiveMessage.TYPE_MESSAGE);
-                                    byteBuf.writeInt(content.getBytes().length);
-                                    byteBuf.writeBytes(content.getBytes());
-                                    ctx.writeAndFlush(byteBuf);*/
-                                }
-
-                                @Override
-                                public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-                                    //可以在这里移除保存的channel
-                                    socketChannel = null;//channel被关闭
-                                    mUIHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (clientStatusListener != null) {
-                                                clientStatusListener.disconnect();
-                                            }
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-                                    System.out.println("receiver = " + msg.toString(CharsetUtil.UTF_8));
-                                }
-
-                                @Override
-                                public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-                                    super.channelReadComplete(ctx);
-                                    //ctx.channel().close().addListener(ChannelFutureListener.CLOSE);
-                                    //当channel被关闭之后，整个serverBootStrap都会被关闭，而对于server来讲，之所以没有关闭，应该是socketServer在运行的原因
-                                }
-
-                                @Override
-                                public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-                                    cause.printStackTrace();
-                                }
-                            });
+                            ch.pipeline().addLast(watchdog.handlers());
                         }
                     });
         }
@@ -136,7 +163,7 @@ public class SingleClientServer extends Service {
                     public void run() {
                         if (clientStatusListener != null) {
                             if (future.isSuccess()) {
-                                clientStatusListener.connect();
+                                clientStatusListener.connect((SocketChannel) future.channel());
                             } else {
                                 Throwable cause = future.cause();
                                 cause.printStackTrace();
@@ -152,6 +179,7 @@ public class SingleClientServer extends Service {
     void stopConnect() {
         try {
             workGroup.shutdownGracefully().sync();//阻塞当前线程，避免走完之后进程被关闭
+            workGroup = null;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -210,7 +238,7 @@ public class SingleClientServer extends Service {
 
     public interface ClientStatusListener {
 
-        void connect();
+        void connect(SocketChannel socketChannel);
 
         void connectFail(String errorInfo);
 

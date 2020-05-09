@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -45,7 +46,7 @@ public class WorkStationServer extends Service implements ClientStatusListener {
 
     private ServerCallbackListener serverCallbackListener;
 
-    private AcceptorIdleStateTrigger acceptorIdleStateTrigger = new AcceptorIdleStateTrigger();
+    private AcceptorIdleStateTrigger idleStateTrigger = new AcceptorIdleStateTrigger();
 
     private Handler mUIHandler = new Handler(new Handler.Callback() {
         @Override
@@ -97,8 +98,6 @@ public class WorkStationServer extends Service implements ClientStatusListener {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(final SocketChannel ch) throws Exception {
-                        CLog.e("remoteAddress = " + ch.remoteAddress().getAddress().getHostAddress());
-                        CLog.e("localAddress = " + ch.localAddress().getAddress().getHostAddress());
                         //等待绑定结果
                         mUIHandler.post(new Runnable() {
                             @Override
@@ -109,10 +108,16 @@ public class WorkStationServer extends Service implements ClientStatusListener {
                             }
                         });
                         ch.pipeline().addLast(new IdleStateHandler(10, 0, 0, TimeUnit.SECONDS));
-                        ch.pipeline().addLast(acceptorIdleStateTrigger);
+                        ch.pipeline().addLast(idleStateTrigger);
                         ch.pipeline().addLast(new ReceiverEncoder());
                         ch.pipeline().addLast(new ReceiverDecoder());
                         ch.pipeline().addLast(new ReceiverHandler(ch.remoteAddress().getAddress().getHostAddress(), instance));
+                    }
+
+                    @Override
+                    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                        super.exceptionCaught(ctx, cause);
+                        cause.printStackTrace();
                     }
                 });
         channelFuture = bootstrap.bind();
@@ -140,18 +145,12 @@ public class WorkStationServer extends Service implements ClientStatusListener {
 
     void stopReceiver() {
         if (clientGroup != null) {
-            //try {
-            CLog.e(System.currentTimeMillis());
             try {
                 clientGroup.shutdownGracefully().sync();//为组添加listener是不会执行的，关闭大概需要2s，如果有数据读写的话，可能时间会更长一点，所以关闭的话，要考虑是否以线程的形式关闭
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            CLog.e(System.currentTimeMillis());
             //.sync();//阻塞，等待解绑完毕
-            //} catch (InterruptedException e) {
-            //     e.printStackTrace();
-            //}
             clientGroup = null;
         }
         if (bossGroup != null) {
@@ -161,7 +160,6 @@ public class WorkStationServer extends Service implements ClientStatusListener {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            CLog.e(System.currentTimeMillis());
             //阻塞，等待解绑完毕，这个操作的是ServerSocket，所以下面的channelFuture是不用的了，
             // 所有操作都在EventLoopGroup中,为组添加listener是不会执行的，应该是表示，这是一个组，如果里面的channel有些没有关闭成功，有些关闭成功，那怎么算
             //所以所有操作都可以立即返回

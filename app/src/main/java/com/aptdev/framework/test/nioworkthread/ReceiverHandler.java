@@ -1,7 +1,9 @@
 package com.aptdev.framework.test.nioworkthread;
 
 import com.aptdev.framework.test.bean.LiveMessage;
+import com.aptdev.framework.test.bean.ResultBean;
 import com.aptdev.framework.test.bean.SocketControlBean;
+import com.aptdev.framework.test.constants.ServerConstant;
 import com.aptdev.framework.test.eos.CommunicationPermissionUtil;
 import com.aptdev.framework.test.utils.GSonUtils;
 import com.dragondevl.clog.CLog;
@@ -39,19 +41,19 @@ public class ReceiverHandler extends SimpleChannelInboundHandler<LiveMessage> {
         //channel连接上来了，延迟5s看有没有发送授权信息
     }
 
-    @Override
+    /*@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        /*super.channelActive(ctx);*/
+        *//*super.channelActive(ctx);*//*
         //client被连接后，channel被添加，并正式处于活跃状态，可以读写数据
         CLog.e("channelActive！");
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        /*super.channelInactive(ctx);*/
+        *//*super.channelInactive(ctx);*//*
         //client关闭后，channel禁止读写数，并处于沉寂状态
         CLog.e("channelInactive！");
-    }
+    }*/
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LiveMessage msg) throws Exception {
@@ -71,7 +73,7 @@ public class ReceiverHandler extends SimpleChannelInboundHandler<LiveMessage> {
                 authorization = true;
                 //已经授权成功了，下发一个sessionId
                 sessionId = UUID.randomUUID().toString();//每一个连接都有一个sessionId，并返回给client
-                writeAndFlushContent(ctx, sessionId);
+                //writeAndFlushContent(ctx, sessionId);
                 CLog.e("授权！");
             } else {//密钥不对，退出
                 ctx.channel().close().sync();//强制退出
@@ -79,72 +81,101 @@ public class ReceiverHandler extends SimpleChannelInboundHandler<LiveMessage> {
             }
         } else {//之前已经成功授权的，此时可以进行数据交换
             //将string的content转换成ctl bean类
-            String msgContent = msg.getContent();
-            SocketControlBean scb = GSonUtils.getInstance().fromJson(msgContent, SocketControlBean.class);
-            if (scb != null) {//只有转换成功的，才可以进行处理
-                int dtype = scb.getDtype();//查看是需要什么内容
-                CLog.e("ctlType:" + dtype);
+            if (LiveMessage.TYPE_HEART != msg.getType()) {//不是心跳包数据
+                String msgContent = msg.getContent();
+                SocketControlBean scb = GSonUtils.getInstance().fromJson(msgContent, SocketControlBean.class);
+                if (scb != null) {//只有转换成功的，才可以进行处理
+                    int dtype = scb.getDtype();//查看是需要什么内容
+                    CLog.e("ctlType:" + dtype);
+                    //可以看到请求数据是什么
+                    ResultBean resultBean;
+                    switch (dtype) {
+                        case ServerConstant.SEND_CODE_1://需要把数据传回去
+                            CLog.e("请求所有人的核销数据！");
+                            resultBean = new ResultBean<Object>(ResultBean.RESULT_OK, "没有数据", null);
+                            break;
+                        case ServerConstant.SEND_CODE_2:
+                            CLog.e("核销某个人的数据！");
+                            resultBean = new ResultBean<Object>(ResultBean.RESULT_OK, "没有某个人的数据", null);
+                            break;
+                        default:
+                            CLog.e("未知的指令");
+                            resultBean = new ResultBean<Object>(ResultBean.RESULT_OK, "未知的指令", null);
+                            break;
+                    }
+                    writeAndFlushContent(ctx, resultBean);
+                } else {
+                    CLog.e("数据转换错误，原始数据：" + msgContent);
+                }
             } else {
-                CLog.e("数据转换错误，原始数据：" + msgContent);
+                CLog.e("心跳包！");
             }
         }
     }
 
-    @Override
+    /*@Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        /*super.channelReadComplete(ctx);*/
+        *//*super.channelReadComplete(ctx);*//*
         //在读取数据结束的时候被调用
-        ByteBuf bf = Unpooled.copiedBuffer("channelReadComplete".getBytes());
-        ctx.writeAndFlush(bf);
-    }
+        *//*ByteBuf bf = Unpooled.copiedBuffer("channelReadComplete".getBytes());
+        ctx.writeAndFlush(bf);*//*
+    }*/
 
-    @Override
+    /*@Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        /*super.channelRegistered(ctx);*/
+        *//*super.channelRegistered(ctx);*//*
         CLog.e("channelRegistered");
         //client连接上来，并创建该handler，channel被注册
-    }
+    }*/
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         /*super.channelUnregistered(ctx);*/
-        CLog.e("channelUnregistered");
+        //CLog.e("channelUnregistered");
         //client关闭连接，channel被移除
         if (clientStatusListener != null) {
             clientStatusListener.onClose(remoteIPAddress);
         }
     }
 
-    @Override
+    /*@Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        /*super.handlerAdded(ctx);*/
+        *//*super.handlerAdded(ctx);*//*
         CLog.e("handlerAdded");
         //handler被添加，属于最早被调用的方法
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        /*super.handlerRemoved(ctx);*/
-        CLog.e("handlerRemoved");
+        *//*super.handlerRemoved(ctx);*//*
+        //CLog.e("handlerRemoved");
         //handler被移除，属于最终被调用的方法
-    }
+    }*/
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {//异常不再抛出，直接自己处理
         /*super.exceptionCaught(ctx, cause);*/
         //出现异常的时候被调用
         cause.printStackTrace();
         if (cause instanceof AcceptorIdleStateTrigger.ReadIdleException) {//看是不是读超时
             CLog.e("???");
             ctx.channel().close();
+        } else {//如果是其他异常的，也一样关闭
+            CLog.e("Not ReadIdleException!");
+            ctx.channel().close();
         }
         //
         //抛出异常
     }
 
-    private void writeAndFlushContent(ChannelHandlerContext ctx, String content) {
+    //写出数据
+    private void writeAndFlushContent(ChannelHandlerContext ctx, ResultBean result) {
         Channel channel = ctx.channel();
-        ByteBuf buf = Unpooled.copiedBuffer(content.getBytes());
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(LiveMessage.TYPE_MESSAGE);
+        String content = GSonUtils.getInstance().toJson(result);
+        buf.writeInt(content.getBytes().length);
+        buf.writeBytes(content.getBytes());
         channel.writeAndFlush(buf);
     }
 

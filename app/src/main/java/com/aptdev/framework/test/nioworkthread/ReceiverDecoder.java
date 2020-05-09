@@ -36,15 +36,20 @@ public class ReceiverDecoder extends ReplayingDecoder<ReceiverDecoder.LiveState>
         LiveState state = state();
         CLog.e("state = " + state);
         switch (state) {
-            case TYPE:
+            case TYPE://还要判断，如果一开始没有找到包头，则直接不读取了
                 message = new LiveMessage();
                 byte type = in.readByte();
+                CLog.e("type = " + type);
                 message.setType(type);
                 if (type == LiveMessage.TYPE_MESSAGE) {
                     checkpoint(LiveState.LENGTH);
-                } else {
+                } else if (type == LiveMessage.TYPE_HEART) {
                     checkpoint(LiveState.TYPE);
                     out.add(message);
+                } else {
+                    CLog.e("数据错误，重置所有数据");
+                    in.release();
+                    checkpoint(LiveState.TYPE);
                 }
                 break;
             case LENGTH:
